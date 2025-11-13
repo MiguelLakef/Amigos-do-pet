@@ -78,6 +78,17 @@
       background-color: #b02a37;
     }
 
+    .btn-detalhes {
+      background-color: #007bff;
+      color: white;
+      margin-top: 10px;
+      margin-right: 10px;
+    }
+
+    .btn-detalhes:hover {
+      background-color: #0056b3;
+    }
+
     .pet-card {
       border: 2px solid #007bff;
       border-radius: 10px;
@@ -111,6 +122,58 @@
       margin: 5px;
     }
 
+    /* Modal de tela cheia */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      animation: zoomIn 0.3s ease;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal img {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 15px;
+    }
+
+    .fechar {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .fechar:hover {
+      background-color: #b02a37;
+    }
+
     @media (max-width: 600px) {
       .pet-card {
         flex-direction: column;
@@ -133,6 +196,11 @@
   </nav>
 
   <main id="conteudo"></main>
+
+  <!-- Modal de detalhes -->
+  <div id="modal" class="modal">
+    <div class="modal-content" id="modal-content"></div>
+  </div>
 
   <script>
     function mostrarCadastro() {
@@ -195,6 +263,7 @@
                   <p><strong>Raça:</strong> ${pet.raca}</p>
                   <p><strong>Idade:</strong> ${pet.idade} ano(s)</p>
                   <p><strong>Biografia:</strong> ${pet.ata}</p>
+                  <button class="btn-detalhes" onclick="abrirDetalhes(${index})">Ver Detalhes</button>
                   <button class="btn-excluir" onclick="excluirPet(${index})">Excluir</button>
                 </div>
               </div>
@@ -215,6 +284,38 @@
         mostrarLista();
       }
     }
+
+    // Função para abrir modal de detalhes
+    function abrirDetalhes(index) {
+      const pets = JSON.parse(localStorage.getItem("pets")) || [];
+      const pet = pets[index];
+
+      const modal = document.getElementById("modal");
+      const modalContent = document.getElementById("modal-content");
+
+      modalContent.innerHTML = `
+        <img src="${pet.foto}" alt="${pet.nome}">
+        <h2>${pet.nome}</h2>
+        <p><strong>Raça:</strong> ${pet.raca}</p>
+        <p><strong>Idade:</strong> ${pet.idade} ano(s)</p>
+        <p><strong>Biografia:</strong> ${pet.ata}</p>
+        <button class="fechar" onclick="fecharModal()">Fechar</button>
+      `;
+
+      modal.style.display = "flex";
+    }
+
+    function fecharModal() {
+      document.getElementById("modal").style.display = "none";
+    }
+
+    // Fechar modal clicando fora
+    window.onclick = function(event) {
+      const modal = document.getElementById("modal");
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    };
 
     mostrarLista();
   </script>
