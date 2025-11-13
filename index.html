@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amigos do Pet 🐾</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    #logo {
+      width: 15%;
+      height: 15%;
+      border-radius: 40px;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 30px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input,
+    textarea {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    input[type="file"] {
+      border: none;
+    }
+
+    button {
+      background-color: #ffc107;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      color: #333;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e0a800;
+    }
+
+    .btn-excluir {
+      background-color: #dc3545;
+      color: white;
+      margin-top: 10px;
+    }
+
+    .btn-excluir:hover {
+      background-color: #b02a37;
+    }
+
+    .pet-card {
+      border: 2px solid #007bff;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 15px 0;
+      background-color: #f1f9ff;
+    }
+
+    .pet-card img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .pet-info {
+      margin-left: 20px;
+    }
+
+    .pet-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    nav button {
+      margin: 5px;
+    }
+
+    @media (max-width: 600px) {
+      .pet-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="./assets/logo amigos do pet.jpg" alt="logo da empresa" id="logo">
+    <h1>🐾 Amigos do Pet</h1>
+    <p>Cuidado, carinho e diversão para o seu melhor amigo!</p>
+  </header>
+
+  <nav>
+    <button onclick="mostrarCadastro()">Cadastrar Pet</button>
+    <button onclick="mostrarLista()">Ver Cadastros</button>
+  </nav>
+
+  <main id="conteudo"></main>
+
+  <script>
+    function mostrarCadastro() {
+      document.getElementById("conteudo").innerHTML = `
+        <h2>Cadastro do Pet</h2>
+        <form id="formPet">
+          <input type="text" id="nome" placeholder="Nome do Pet" required />
+          <input type="text" id="raca" placeholder="Raça" required />
+          <input type="number" id="idade" placeholder="Idade (em anos)" required />
+          <textarea id="ata" rows="4" placeholder="Biografia ou informações sobre o pet..." required></textarea>
+          <input type="file" id="foto" accept="image/*" required />
+          <button type="submit">Cadastrar</button>
+        </form>
+      `;
+
+      document
+        .getElementById("formPet")
+        .addEventListener("submit", salvarPet);
+    }
+
+    function salvarPet(event) {
+      event.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const raca = document.getElementById("raca").value;
+      const idade = document.getElementById("idade").value;
+      const ata = document.getElementById("ata").value;
+      const fotoInput = document.getElementById("foto");
+      const leitor = new FileReader();
+
+      leitor.onload = function (e) {
+        const foto = e.target.result;
+        const pet = { nome, raca, idade, ata, foto };
+
+        const pets = JSON.parse(localStorage.getItem("pets")) || [];
+        pets.push(pet);
+        localStorage.setItem("pets", JSON.stringify(pets));
+
+        alert("Pet cadastrado com sucesso!");
+        mostrarLista();
+      };
+
+      leitor.readAsDataURL(fotoInput.files[0]);
+    }
+
+    function mostrarLista() {
+      const pets = JSON.parse(localStorage.getItem("pets")) || [];
+      let conteudo = "<h2>Pets Cadastrados</h2>";
+
+      if (pets.length === 0) {
+        conteudo += "<p>Nenhum pet cadastrado ainda 🐾</p>";
+      } else {
+        conteudo += '<div class="pet-list">';
+        pets.forEach((pet, index) => {
+          conteudo += `
+            <div class="pet-card">
+              <div style="display:flex; align-items:center;">
+                <img src="${pet.foto}" alt="${pet.nome}">
+                <div class="pet-info">
+                  <h3>${pet.nome}</h3>
+                  <p><strong>Raça:</strong> ${pet.raca}</p>
+                  <p><strong>Idade:</strong> ${pet.idade} ano(s)</p>
+                  <p><strong>Biografia:</strong> ${pet.ata}</p>
+                  <button class="btn-excluir" onclick="excluirPet(${index})">Excluir</button>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        conteudo += "</div>";
+      }
+
+      document.getElementById("conteudo").innerHTML = conteudo;
+    }
+
+    function excluirPet(index) {
+      const pets = JSON.parse(localStorage.getItem("pets")) || [];
+      if (confirm(`Tem certeza que deseja excluir o pet "${pets[index].nome}"?`)) {
+        pets.splice(index, 1);
+        localStorage.setItem("pets", JSON.stringify(pets));
+        mostrarLista();
+      }
+    }
+
+    mostrarLista();
+  </script>
+</body>
+</html>
